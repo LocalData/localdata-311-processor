@@ -1,0 +1,22 @@
+{
+  "name": "localdata-311",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.1.x"
+  },
+  "dependencies": {
+    "async": ">=0.2",
+    "express": "3.0.x",
+    "lodash": "~1.0.1",
+    "mongoose": "3.6.x",
+    "request": "2.21.x"
+  },
+  "devDependencies": {
+    "envrun": "~0.0.2",
+    "mocha": "~1.10.0",
+    "mongodb": ">= 1.2.8",
+    "should": "~1.2.2"
+  }
+}
