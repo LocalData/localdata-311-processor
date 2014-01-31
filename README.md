@@ -19,7 +19,11 @@ Run
 Development
 -----------
 
-To test, run `mocha` from the project root.
+To test, run this command from the project root:
+
+```
+make test
+```
 
 License
 -----

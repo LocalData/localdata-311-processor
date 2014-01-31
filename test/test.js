@@ -3,14 +3,15 @@
 'use strict';
 
 var assert = require('assert');
+var mongoose = require('mongoose');
 var should = require('should');
 
 var app = require('../app');
 var settings = require('../settings');
-var Response = require('../models/Response');
+var Response = require('../lib/models/Response');
 
 // connect to mongoose
-
+mongoose.connect(settings.mongo);
 
 var setup = function(done) {
   var responses = [
@@ -57,42 +58,37 @@ var setup = function(done) {
   });
 };
 
-suite('Responses', function () {
+suite('311 app', function () {
   beforeEach(function(done){
     setup(done);
-    // clear the collection
-    // add data
   });
 
-  suite('311 app', function () {
-    test('The app should update just the given surveys', function (done) {
-      app.run();
-      Response.find({survey: '3'}, function(error, docs) {
-        docs[0].responses.chicago_311_tracker.should.be('Waiting to submit');
-      });
+  test('A response with a chicago_311 field should be processed', function (done) {
+    // Run the app
+  });
+
+  test('The app should update just the given surveys', function (done) {
+    // Check the app
+    Response.find({survey: '3'}, function(error, docs) {
+      docs[0].responses.chicago_311_tracker.should.be('Waiting to submit');
     });
+  });
 
-    test('A response with a chicago_311 field should be processed', function (done) {
-    });
+  test('The app should change the status to "Submitting" after the submission has started', function (done) {
+    // run the app
+    // count the number of responses
+  });
 
-    test('The app should change the status to "Submitting" after the submission has started', function (done) {
-      // run the app
-      // count the number of responses
-    });
+  test('The app should not select responses that are not marked "Waiting to submit"', function (done) {
+    // Run app.
+    // Check for responses.
+    // Make sure there aren't any that shouldn't be processed.
+  });
 
-    test('The app should not select responses that are not marked "Waiting to submit"', function (done) {
-      // Run app.
-      // Check for responses.
-      // Make sure there aren't any that shouldn't be processed.
-    });
-
-    test('The app should update the response when the 311 ticket is received', function (done) {
-      // Run app
-      // Look or in-process responses
-      // Pretend they have been resolved (override the checker)
-      // Run mongoose query for responses.
-    });
-
-
+  test('The app should update the response when the 311 ticket is received', function (done) {
+    // Run app
+    // Look or in-process responses
+    // Pretend they have been resolved (override the checker)
+    // Run mongoose query for responses.
   });
 });

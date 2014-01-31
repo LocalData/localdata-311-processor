@@ -20,8 +20,8 @@ var express = require('express');
 var mongoose = require('mongoose');
 var request = require('request');
 
-var settings = require('../settings');
-var Response = require('../models/Response');
+var settings = require('./settings');
+var Response = require('./lib/models/Response');
 
 var NEW = 'Waiting to submit ticket';
 var IN_PROCESS = 'Submitting';
@@ -112,7 +112,7 @@ app.processInProgressResponses = function(item) {
 
 
 app.run = function(done) {
-  mongoose.connect();
+  mongoose.connect(settings.mongo);
 
   // Now handle the in-process responses
   q['responses.chicago_311'] = IN_PROCESS;
