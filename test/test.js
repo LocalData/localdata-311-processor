@@ -65,11 +65,10 @@ suite('Responses', function () {
   });
 
   suite('311 app', function () {
-    test('The app should check just the given surveys', function (done) {
+    test('The app should update just the given surveys', function (done) {
       app.run();
-
-      Response.find({survey: '1'}, function(error, docs) {
-
+      Response.find({survey: '3'}, function(error, docs) {
+        docs[0].responses.chicago_311_tracker.should.be('Waiting to submit');
       });
     });
 
