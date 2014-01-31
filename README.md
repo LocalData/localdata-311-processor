@@ -14,7 +14,7 @@ Clone the repository. Install dependencies with `npm install`. Copy and customis
 Run
 ---
 
-`node `
+`envrun --path -e environment.env node app.js`
 
 Development
 -----------
