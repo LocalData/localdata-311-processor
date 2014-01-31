@@ -11,7 +11,7 @@
     "express": "3.0.x",
     "lodash": "~1.0.1",
     "mongoose": "3.6.x",
-    "request": "2.21.x"
+    "request": "2.33.x"
   },
   "devDependencies": {
     "envrun": "~0.0.2",

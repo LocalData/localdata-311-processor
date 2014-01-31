@@ -16,7 +16,7 @@ if (process.env.MONGO_NATIVE_PARSER !== undefined && process.env.MONGO_NATIVE_PA
 }
 
 // Chicago keys
-settings.aws_key = process.env.AWS_KEY;
-settings.aws_secret = process.env.AWS_SECRET;
+settings.chicago_key = process.env.CHICAGO_KEY;
+settings.chicago_endpoint = process.env.CHICAGO_ENDPOINT;
 
-settings.survey_id = process.env.SURVEY_ID;
+settings.surveys = process.env.SURVEY_IDS;
