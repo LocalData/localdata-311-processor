@@ -22,6 +22,10 @@ var setup = function(done) {
       survey: '1',
       responses: {
         chicago_311: 'Waiting to submit ticket'
+      },
+      geo_info: {
+        centroid: [41.51,-87.38],
+        humanReadableName: '1700 Cermak'
       }
     },
     {
@@ -29,6 +33,10 @@ var setup = function(done) {
       survey: '2',
       responses: {
         chicago_311: 'Waiting to submit ticket'
+      },
+      geo_info: {
+        centroid: [41.51,-87.38],
+        humanReadableName: '1701 Cermak'
       }
     },
     {
@@ -36,6 +44,21 @@ var setup = function(done) {
       survey: '3',
       responses: {
         chicago_311: 'Waiting to submit ticket'
+      },
+      geo_info: {
+        centroid: [41.51,-87.38],
+        humanReadableName: '1702 Cermak'
+      }
+    },
+    {
+      // Response with no chicago_311 trigger
+      survey: '1',
+      responses: {
+        foo: 'bar'
+      },
+      geo_info: {
+        centroid: [41.51,-87.38],
+        humanReadableName: '1703 Cermak'
       }
     },
     {
@@ -44,6 +67,10 @@ var setup = function(done) {
       responses: {
         chicago_311: 'Submitting',
         chicago_311_token: '--token--'
+      },
+      geo_info: {
+        centroid: [41.51,-87.38],
+        humanReadableName: '1704 Cermak'
       }
     },
     {
@@ -51,13 +78,17 @@ var setup = function(done) {
       survey: '1',
       responses: {
         chicago_311_tracker: '--tracking id--'
-      }
+      },
+      geo_info: {
+        centroid: [41.51,-87.38]
+      },
+      humanReadableName: '1705 Cermak'
     }
   ];
 
   Response.remove({}, function(err) {
     console.log("Removed responses");
-    Response.create(responses, function(error) {
+    Response.create(responses[0], function(error) {
       console.log("Setup complete");
       done();
     });
@@ -69,28 +100,31 @@ suite('311 app', function () {
     setup(done);
   });
 
-  test('A response with a chicago_311 field should be processed', function (done) {
-    false.should.not.be(true);
-    done();
-    // Run the app
+  test('Responses with a chicago_311 field should be processed', function (done) {
+    app.processNewResponses(function(error) {
+      should.not.exist(error);
+      Response.find({}, function(error, docs) {
+        console.log();
+        done();
+      });
+    });
   });
 
   test('The app should update just the given surveys', function (done) {
     // Check the app
-    Response.find({survey: '3'}, function(error, docs) {
+    Response.find({}, function(error, docs) {
+      should.not.exist(error);
       docs[0].responses.chicago_311_tracker.should.be('Waiting to submit');
+      done();
     });
-  });
-
-  test('The app should change the status to "Submitting" after the submission has started', function (done) {
-    // run the app
-    // count the number of responses
   });
 
   test('The app should not select responses that are not marked "Waiting to submit"', function (done) {
     // Run app.
     // Check for responses.
     // Make sure there aren't any that shouldn't be processed.
+    should.exist(undefined);
+    done();
   });
 
   test('The app should update the response when the 311 ticket is received', function (done) {
@@ -98,5 +132,7 @@ suite('311 app', function () {
     // Look or in-process responses
     // Pretend they have been resolved (override the checker)
     // Run mongoose query for responses.
+    should.exist(undefined);
+    done();
   });
 });

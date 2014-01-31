@@ -15,6 +15,7 @@ Building violations: 4fd3bd72e750846c530000cd
 Street light out: 4ffa9f2d6018277d400000c8
 */
 
+var async = require('async');
 var http = require('http');
 var express = require('express');
 var mongoose = require('mongoose');
@@ -28,12 +29,12 @@ var IN_PROCESS = 'Submitting';
 var FAILED = 'Unable to submit ticket';
 var DESCRIPTION = 'This house appears to be vacant.';
 
-// TODO: In the future, responses will need a type to be handled correctly
 var BUILDING_VIOLATION_TYPE = 'Building violation';
 var BUILDING_VIOLATION_CODE = '4fd3bd72e750846c530000cd';
+var REQUEST_ENDPOINT = settings.chicago_endpoint + 'requests.json?api_key='
+  + settings.chicago_key;
 
 var app = {};
-
 
 /*
   Handle errors
@@ -42,26 +43,25 @@ app.error = function(error) {
   console.error(error);
 };
 
-
 /*
   Process an individual new repsonse
 */
 app.processNewResponse = function(item, done) {
   var details = {
-    lat: item.geo_info.centroid.lat,
-    long: item.geo_info.centroid.lon,
+    lat: item.geo_info.centroid[0],
+    long: item.geo_info.centroid[1],
     address_string: item.geo_info.humanReadableName, // address
     description: DESCRIPTION
   };
 
-  var url = '';
-  request.post(url, details, function(error, response, body) {
+  request.post(REQUEST_ENDPOINT, details, function(error, response) {
+    console.log("311 API response: ", error, response);
     if(error) {
       done(error);
       return;
     }
 
-    var token = body.token;
+    var token = response.token;
     item.responses.chicago_311_token = token;
     item.responses.chicago_311 = IN_PROCESS;
     item.save();
@@ -86,18 +86,19 @@ app.processNewResponses = function(done) {
       done(error);
     }
 
-    _.each(items, app.processNewResponse);
-    done();
+    async.map(items, app.processNewResponse, function(error) {
+      done(error);
+    });
   });
 };
 
 
 /*
+  TODO IN MILESTONE 2
   Process in-progress 311 submissions
   Check the API to see if it has recieved a tracking ID instead of the token
 */
 app.processInProgressResponses = function(item) {
-  // TODO in milestone 2
   // look for the ID on srtracker
   // "it is nesseary to poll the GET service_request_id method until an SR id is
   //    returned"
@@ -110,18 +111,26 @@ app.processInProgressResponses = function(item) {
   // });
 };
 
+app.noop = function() {
+
+};
 
 app.run = function(done) {
   mongoose.connect(settings.mongo);
 
-  // Now handle the in-process responses
-  q['responses.chicago_311'] = IN_PROCESS;
-  var processingQuery = Response.find(q);
-  processingQuery.exec(function(error, items) {
-    if(error) {
-      app.error(error);
-    }
+  app.processNewResponses(app.noop);
 
-    _.each(items, app.getID);
-  });
+  // TODO in milestone 2.
+  // Now handle the in-process responses
+  // q['responses.chicago_311'] = IN_PROCESS;
+  // var processingQuery = Response.find(q);
+  // processingQuery.exec(function(error, items) {
+  //   if(error) {
+  //     app.error(error);
+  //   }
+  //
+  //   _.each(items, app.getID);
+  // });
 };
+
+module.exports = app;
