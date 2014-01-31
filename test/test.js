@@ -11,9 +11,11 @@ var settings = require('../settings');
 var Response = require('../lib/models/Response');
 
 // connect to mongoose
+console.log("Connecting to mongo with settings", settings.mongo);
 mongoose.connect(settings.mongo);
 
 var setup = function(done) {
+  console.log("starting setup");
   var responses = [
     {
       // Normal response
@@ -54,7 +56,11 @@ var setup = function(done) {
   ];
 
   Response.remove({}, function(err) {
-    Response.create(responses, function() { done(); });
+    console.log("Removed responses");
+    Response.create(responses, function(error) {
+      console.log("Setup complete");
+      done();
+    });
   });
 };
 
@@ -64,6 +70,8 @@ suite('311 app', function () {
   });
 
   test('A response with a chicago_311 field should be processed', function (done) {
+    false.should.not.be(true);
+    done();
     // Run the app
   });
 
