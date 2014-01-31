@@ -1,5 +1,5 @@
 /*jslint node: true, indent: 2, white: true, vars: true */
-/*globals suite, test, setup, suiteSetup, suiteTeardown, done, teardown */
+/*globals suite, test, setup, suiteSetup, suiteTeardown, done, teardown, beforeEach */
 'use strict';
 
 var assert = require('assert');
@@ -13,11 +13,49 @@ var Response = require('../models/Response');
 
 
 var setup = function(done) {
-  // remove existing responses
-    // create responses
-      // Save them to the DB
-      Response.save(responses, function() { done(); });
-}
+  var responses = [
+    {
+      // Normal response
+      survey: '1',
+      responses: {
+        chicago_311: 'Waiting to submit ticket'
+      }
+    },
+    {
+      // Normal response for second survey
+      survey: '2',
+      responses: {
+        chicago_311: 'Waiting to submit ticket'
+      }
+    },
+    {
+      // Normal response for third survey
+      survey: '3',
+      responses: {
+        chicago_311: 'Waiting to submit ticket'
+      }
+    },
+    {
+      // In-progress response for first survey
+      survey: '1',
+      responses: {
+        chicago_311: 'Submitting',
+        chicago_311_token: '--token--'
+      }
+    },
+    {
+      // Finished response for first survey
+      survey: '1',
+      responses: {
+        chicago_311_tracker: '--tracking id--'
+      }
+    }
+  ];
+
+  Response.remove({}, function(err) {
+    Response.create(responses, function() { done(); });
+  });
+};
 
 suite('Responses', function () {
   beforeEach(function(done){
@@ -28,25 +66,14 @@ suite('Responses', function () {
 
   suite('311 app', function () {
     test('The app should check just the given surveys', function (done) {
-      var data = fixtures.makeResponses(1);
+      app.run();
 
-      request.post({url: url, json: data}, function (error, response, body) {
-        assert(false);
-        should.not.exist(error);
-        response.statusCode.should.equal(201);
-        done();
+      Response.find({survey: '1'}, function(error, docs) {
+
       });
     });
 
     test('A response with a chicago_311 field should be processed', function (done) {
-      var data = fixtures.makeResponses(1);
-
-      request.post({url: url, json: data}, function (error, response, body) {
-        assert(false);
-        should.not.exist(error);
-        response.statusCode.should.equal(201);
-        done();
-      });
     });
 
     test('The app should change the status to "Submitting" after the submission has started', function (done) {
