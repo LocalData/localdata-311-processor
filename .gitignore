@@ -1,3 +1,5 @@
 .DS_Store
 dev.env
+*.env
++sample.env
 node_modules
