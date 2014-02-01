@@ -25,7 +25,7 @@ var settings = require('./settings');
 var Response = require('./lib/models/Response');
 
 var NEW = 'Waiting to submit ticket';
-var IN_PROCESS = 'Submitting';
+var IN_PROGRESS = 'Submitting';
 var FAILED = 'Unable to submit ticket';
 var DESCRIPTION = 'This house appears to be vacant.';
 
@@ -72,9 +72,9 @@ app.processNewResponse = function(item, done) {
 
     console.log("setting token and in progress", body[0].token);
     item.responses.chicago_311_token = body[0].token;
-    item.responses.chicago_311 = IN_PROCESS;
+    item.responses.chicago_311 = IN_PROGRESS;
     item.save(function(error, updatedItem) {
-      console.log("Updated item");
+      console.log("Updated item", updatedItem);
       done(error);
     });
   });
