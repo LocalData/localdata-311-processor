@@ -11,7 +11,7 @@ var Response = require('../lib/models/Response');
 
 // connect to mongoose
 console.log("Connecting to mongo with settings", settings.mongo);
-mongoose.connect(settings.mongo);
+mongoose.connect(settings.mongo, { safe: true });
 
 
 /**
@@ -119,8 +119,9 @@ suite('311 app', function () {
       should.not.exist(error);
       console.log("Checking for quality");
       Response.find({
-        survey: '1', 'responses.chicago_311': 'Waiting to submit ticket'
+       'responses.chicago_311': 'Waiting to submit ticket'
       }, function(error, docs) {
+        console.log("I got these docs", docs);
         should.not.exist(error);
         docs.should.be.empty();
         done();

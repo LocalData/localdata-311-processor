@@ -128,7 +128,7 @@ app.noop = function() {
 };
 
 app.run = function(done) {
-  mongoose.connect(settings.mongo);
+  mongoose.connect(settings.mongo, { safe: true });
 
   app.processNewResponses(app.noop);
 
