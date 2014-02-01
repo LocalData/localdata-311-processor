@@ -118,11 +118,12 @@ suite('311 app', function () {
     app.processNewResponses(function(error) {
       should.not.exist(error);
       Response.find({
-       'responses.chicago_311': 'Waiting to submit ticket'
+       'responses.chicago_311': 'Submitting'
       }, function(error, docs) {
         console.log("I got these docs", docs);
         should.not.exist(error);
-        docs.should.be.empty();
+        docs.should.not.be.empty;
+        docs[0].responses.chicago_311_token.should.exist();
         done();
       });
     });
@@ -134,7 +135,7 @@ suite('311 app', function () {
       survey: { $nin: settings.surveys }
     }, function(error, docs) {
       should.not.exist(error);
-      should.not.be.empty(docs);
+      docs.should.not.be.empty;
       docs[0].responses.chicago_311_tracker.should.be('Waiting to submit');
       done();
     });
