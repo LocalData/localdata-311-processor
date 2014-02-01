@@ -2,7 +2,6 @@
 /*globals suite, test, setup, suiteSetup, suiteTeardown, done, teardown, beforeEach */
 'use strict';
 
-var assert = require('assert');
 var mongoose = require('mongoose');
 var should = require('should');
 
@@ -14,6 +13,21 @@ var Response = require('../lib/models/Response');
 console.log("Connecting to mongo with settings", settings.mongo);
 mongoose.connect(settings.mongo);
 
+
+/**
+ * Returns a random longitude
+ * We need to do this or the endpoint will complain about duplicate entries.
+ */
+var getRandomLongitude = function() {
+  var min = 0;
+  var max = 100000;
+  return '-87.38' + Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+
+/**
+ * Set up for our tests
+ */
 var setup = function(done) {
   console.log("starting setup");
   var responses = [
@@ -24,7 +38,7 @@ var setup = function(done) {
         chicago_311: 'Waiting to submit ticket'
       },
       geo_info: {
-        centroid: [41.51,-87.38],
+        centroid: [41.51, getRandomLongitude()],
         humanReadableName: '1700 Cermak'
       }
     },
@@ -35,7 +49,7 @@ var setup = function(done) {
         chicago_311: 'Waiting to submit ticket'
       },
       geo_info: {
-        centroid: [41.51,-87.38],
+        centroid: [41.51, getRandomLongitude()],
         humanReadableName: '1701 Cermak'
       }
     },
@@ -46,7 +60,7 @@ var setup = function(done) {
         chicago_311: 'Waiting to submit ticket'
       },
       geo_info: {
-        centroid: [41.51,-87.38],
+        centroid: [41.51, getRandomLongitude()],
         humanReadableName: '1702 Cermak'
       }
     },
@@ -57,7 +71,7 @@ var setup = function(done) {
         foo: 'bar'
       },
       geo_info: {
-        centroid: [41.51,-87.38],
+        centroid: [41.51, getRandomLongitude()],
         humanReadableName: '1703 Cermak'
       }
     },
@@ -69,7 +83,7 @@ var setup = function(done) {
         chicago_311_token: '--token--'
       },
       geo_info: {
-        centroid: [41.51,-87.38],
+        centroid: [41.51, getRandomLongitude()],
         humanReadableName: '1704 Cermak'
       }
     },
@@ -80,7 +94,7 @@ var setup = function(done) {
         chicago_311_tracker: '--tracking id--'
       },
       geo_info: {
-        centroid: [41.51,-87.38]
+        centroid: [41.51, getRandomLongitude()]
       },
       humanReadableName: '1705 Cermak'
     }
@@ -103,23 +117,30 @@ suite('311 app', function () {
   test('Responses with a chicago_311 field should be processed', function (done) {
     app.processNewResponses(function(error) {
       should.not.exist(error);
-      Response.find({}, function(error, docs) {
-        console.log();
+      console.log("Checking for quality");
+      Response.find({
+        survey: '1', 'responses.chicago_311': 'Waiting to submit ticket'
+      }, function(error, docs) {
+        should.not.exist(error);
+        docs.should.be.empty();
         done();
       });
     });
   });
 
-  test('The app should update just the given surveys', function (done) {
+  test('The app should only update the surveys specified in the settings', function (done) {
     // Check the app
-    Response.find({}, function(error, docs) {
+    Response.find({
+      survey: { $nin: settings.surveys }
+    }, function(error, docs) {
       should.not.exist(error);
+      should.not.be.empty(docs);
       docs[0].responses.chicago_311_tracker.should.be('Waiting to submit');
       done();
     });
   });
 
-  test('The app should not select responses that are not marked "Waiting to submit"', function (done) {
+  test('The app should not update responses without a chicago_311 tag', function (done) {
     // Run app.
     // Check for responses.
     // Make sure there aren't any that shouldn't be processed.

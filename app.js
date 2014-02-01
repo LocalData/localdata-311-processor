@@ -48,24 +48,35 @@ app.error = function(error) {
 */
 app.processNewResponse = function(item, done) {
   var details = {
-    lat: item.geo_info.centroid[0],
-    long: item.geo_info.centroid[1],
-    address_string: item.geo_info.humanReadableName, // address
-    description: DESCRIPTION
+    form: {
+      lat: item.geo_info.centroid[0],
+      long: item.geo_info.centroid[1],
+      address_string: item.geo_info.humanReadableName, // address
+      description: DESCRIPTION,
+      service_code: BUILDING_VIOLATION_CODE
+    }
   };
 
-  request.post(REQUEST_ENDPOINT, details, function(error, response) {
-    console.log("311 API response: ", error, response);
+  request.post(REQUEST_ENDPOINT, details, function(error, response, body) {
+    console.log("311 API response: ", error, body);
     if(error) {
       done(error);
       return;
     }
 
-    var token = response.token;
-    item.responses.chicago_311_token = token;
+    body = JSON.parse(body);
+    if (response.statusCode === 400) {
+      done(body);
+      return;
+    }
+
+    console.log("setting token and in progress", body[0].token);
+    item.responses.chicago_311_token = body[0].token;
     item.responses.chicago_311 = IN_PROCESS;
-    item.save();
-    done();
+    item.save(function(error, updatedItem) {
+      console.log("Updated item");
+      done(error);
+    });
   });
 };
 
@@ -82,11 +93,12 @@ app.processNewResponses = function(done) {
   var query = Response.find(q);
   query.exec(function(error, items) {
     if (error) {
-      app.error(error);
       done(error);
+      return;
     }
 
-    async.map(items, app.processNewResponse, function(error) {
+    async.each(items, app.processNewResponse, function(error) {
+      console.log("Processing completed");
       done(error);
     });
   });
