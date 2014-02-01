@@ -117,7 +117,6 @@ suite('311 app', function () {
   test('Responses with a chicago_311 field should be processed', function (done) {
     app.processNewResponses(function(error) {
       should.not.exist(error);
-      console.log("Checking for quality");
       Response.find({
        'responses.chicago_311': 'Waiting to submit ticket'
       }, function(error, docs) {

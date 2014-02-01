@@ -98,7 +98,6 @@ app.processNewResponses = function(done) {
     }
 
     async.each(items, app.processNewResponse, function(error) {
-      console.log("Processing completed");
       done(error);
     });
   });
