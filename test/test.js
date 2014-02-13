@@ -29,7 +29,7 @@ var getRandomLongitude = function() {
  * Set up for our tests
  */
 var setup = function(done) {
-  console.log("starting setup");
+  console.log("Starting setup");
   var responses = [
     {
       // Normal response
@@ -101,9 +101,9 @@ var setup = function(done) {
   ];
 
   Response.remove({}, function(err) {
-    console.log("Removed responses");
-    Response.create(responses[0], function(error) {
-      console.log("Setup complete");
+    console.info("Removed old responses");
+    Response.create(responses, function(error) {
+      console.info("Test setup complete");
       done();
     });
   });
@@ -123,7 +123,7 @@ suite('311 app', function () {
         console.log("I got these docs", docs);
         should.not.exist(error);
         docs.should.not.be.empty;
-        docs[0].responses.chicago_311_token.should.exist();
+        docs[0].responses.should.have.property('chicago_311_token');
         done();
       });
     });

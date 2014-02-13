@@ -2,17 +2,8 @@
 'use strict';
 
 /**
-DEV NOTES:
-
-API Docs:
-http://dev.cityofchicago.org/docs/api/service_definition
-
-To post a request:
-http://dev.cityofchicago.org/docs/api/post_service_request
-
-Service IDs:
-Building violations: 4fd3bd72e750846c530000cd
-Street light out: 4ffa9f2d6018277d400000c8
+Small server for sending LocalData responses to 311.
+Expects responses to have a chicago_311 property of 'Waiting to submit ticket'
 */
 
 var async = require('async');
@@ -33,6 +24,21 @@ var BUILDING_VIOLATION_TYPE = 'Building violation';
 var BUILDING_VIOLATION_CODE = '4fd3bd72e750846c530000cd';
 var REQUEST_ENDPOINT = settings.chicago_endpoint + 'requests.json?api_key='
   + settings.chicago_key;
+
+
+/**
+DEV NOTES:
+
+API Docs:
+http://dev.cityofchicago.org/docs/api/service_definition
+
+To post a request:
+http://dev.cityofchicago.org/docs/api/post_service_request
+
+Service IDs:
+Building violations: 4fd3bd72e750846c530000cd
+Street light out: 4ffa9f2d6018277d400000c8
+*/
 
 var app = {};
 
@@ -70,11 +76,12 @@ app.processNewResponse = function(item, done) {
       return;
     }
 
-    console.log("setting token and in progress", body[0].token);
+    // console.log("setting token and in progress", body[0].token);
     item.responses.chicago_311_token = body[0].token;
     item.responses.chicago_311 = IN_PROGRESS;
-    item.save(function(error, updatedItem) {
-      console.log("Updated item", updatedItem);
+    item.markModified('responses');
+
+    item.save(function(error, doc) {
       done(error);
     });
   });
