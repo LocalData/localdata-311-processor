@@ -132,14 +132,17 @@ suite('311 app', function () {
 
   test('The app should only update the surveys specified in the settings', function (done) {
     // Check the app
-    Response.find({
-      survey: { $nin: settings.surveys }
-    }, function(error, docs) {
-      console.log("Found docs", docs);
+    app.processNewResponses(function(error) {
       should.not.exist(error);
-      docs.should.not.be.empty;
-      docs[0].responses.chicago_311.should.equal('Waiting to submit ticket');
-      done();
+      Response.find({
+        survey: { $nin: settings.surveys }
+      }, function(error, docs) {
+        console.log("Found docs", docs);
+        should.not.exist(error);
+        docs.should.not.be.empty;
+        docs[0].responses.chicago_311.should.equal('Waiting to submit ticket');
+        done();
+      });
     });
   });
 
@@ -147,7 +150,18 @@ suite('311 app', function () {
     // Run app.
     // Check for responses.
     // Make sure there aren't any that shouldn't be processed.
-    should.exist(undefined);
+    app.processNewResponses(function(error) {
+      should.not.exist(error);
+      Response.find({
+        'responses.foo': 'bar'
+      }, function(error, docs) {
+        console.log("Found docs", docs);
+        should.not.exist(error);
+        docs.should.be.empty;
+        done();
+      });
+    });
+
     done();
   });
 
