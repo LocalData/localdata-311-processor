@@ -24,6 +24,8 @@ var getRandomLongitude = function() {
   return '-87.38' + Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+// Override the survey settings
+settings.surveys = ['1', '2'];
 
 /**
  * Set up for our tests
@@ -120,7 +122,6 @@ suite('311 app', function () {
       Response.find({
        'responses.chicago_311': 'Submitting'
       }, function(error, docs) {
-        console.log("I got these docs", docs);
         should.not.exist(error);
         docs.should.not.be.empty;
         docs[0].responses.should.have.property('chicago_311_token');
@@ -134,9 +135,10 @@ suite('311 app', function () {
     Response.find({
       survey: { $nin: settings.surveys }
     }, function(error, docs) {
+      console.log("Found docs", docs);
       should.not.exist(error);
       docs.should.not.be.empty;
-      docs[0].responses.chicago_311_tracker.should.be('Waiting to submit');
+      docs[0].responses.chicago_311.should.equal('Waiting to submit ticket');
       done();
     });
   });

@@ -63,28 +63,39 @@ app.processNewResponse = function(item, done) {
     }
   };
 
-  request.post(REQUEST_ENDPOINT, details, function(error, response, body) {
-    console.log("311 API response: ", error, body);
-    if(error) {
-      done(error);
-      return;
-    }
-
-    body = JSON.parse(body);
-    if (response.statusCode === 400) {
-      done(body);
-      return;
-    }
-
-    // console.log("setting token and in progress", body[0].token);
-    item.responses.chicago_311_token = body[0].token;
+    // Stubbed for testing
+    var token = 'DONEGETTINGTOKEN';
+    item.responses.chicago_311_token = token;
     item.responses.chicago_311 = IN_PROGRESS;
     item.markModified('responses');
 
     item.save(function(error, doc) {
       done(error);
     });
-  });
+
+  // TODO: actually uses 311 endpoint
+  // request.post(REQUEST_ENDPOINT, details, function(error, response, body) {
+  //   console.log("311 API response: ", error, body);
+  //   if(error) {
+  //     done(error);
+  //     return;
+  //   }
+//
+  //   body = JSON.parse(body);
+  //   if (response.statusCode === 400) {
+  //     done(body);
+  //     return;
+  //   }
+//
+  //   // console.log("setting token and in progress", body[0].token);
+  //   item.responses.chicago_311_token = body[0].token;
+  //   item.responses.chicago_311 = IN_PROGRESS;
+  //   item.markModified('responses');
+//
+  //   item.save(function(error, doc) {
+  //     done(error);
+  //   });
+  // });
 };
 
 
