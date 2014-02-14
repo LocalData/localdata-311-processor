@@ -165,7 +165,6 @@ app.noop = function() {
 
 app.run = function(done, res) {
   console.log("Starting the app");
-  mongoose.connect(settings.mongo, { safe: true });
 
   async.series([
     app.processNewResponses,
@@ -175,6 +174,7 @@ app.run = function(done, res) {
   }.bind(this));
 };
 
+mongoose.connect(settings.mongo, { safe: true });
 var server = express();
 var port = Number(process.env.PORT || 3000);
 console.log("I'm using port", port);
