@@ -130,6 +130,7 @@ app.processInProgressResponse = function(item, done) {
     item.responses.chicago_311 = '1234';
     delete item.responses.chicago_311_token;
     item.save();
+    done();
   });
 };
 
@@ -162,18 +163,25 @@ app.noop = function() {
 
 };
 
-app.run = function(done) {
+app.run = function(done, res) {
   console.log("Starting the app");
   mongoose.connect(settings.mongo, { safe: true });
 
-  app.processNewResponses(app.noop);
-  app.processInProgressResponses(app.noop);
+  async.series([
+    app.processNewResponses,
+    app.processInProgressResponses
+  ], function(error) {
+    done(error);
+  }.bind(this));
 };
 
 var server = express();
 server.get('/', function(req, res){
   console.log("Listening on port", process.env.port || 3000);
-  app.run();
+  app.run(function() {
+    console.log("Done");
+    res.send(200);
+  });
 });
 server.listen(process.env.port || 3000);
 
