@@ -125,7 +125,7 @@ app.processInProgressResponse = function(item, done) {
       return done(error);
     }
 
-    console.log(response,body);
+    console.log(body);
     // If there is an ID, save it to the object
     item.responses.chicago_311 = '1234';
     delete item.responses.chicago_311_token;
@@ -150,7 +150,7 @@ app.processInProgressResponses = function(done) {
       return;
     }
 
-    console.log("I found xxx in-progress responses:", items);
+    console.log("I found in-progress responses:", items);
 
     async.eachLimit(items, 1, app.processInProgressResponse, function(error) {
       done(error);
@@ -163,10 +163,18 @@ app.noop = function() {
 };
 
 app.run = function(done) {
+  console.log("Starting the app");
   mongoose.connect(settings.mongo, { safe: true });
 
   app.processNewResponses(app.noop);
   app.processInProgressResponses(app.noop);
 };
+
+var server = express();
+server.get('/', function(req, res){
+  app.run();
+});
+server.listen(3000);
+
 
 module.exports = app;
