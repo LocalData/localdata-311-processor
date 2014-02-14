@@ -176,13 +176,15 @@ app.run = function(done, res) {
 };
 
 var server = express();
+var port = Number(process.env.PORT || 3000);
+console.log("I'm using port", port);
 server.get('/', function(req, res){
-  console.log("Listening on port", process.env.port || 3000);
+  console.log("Listening on port", port);
   app.run(function() {
     console.log("Done");
     res.send(200);
   });
 });
-server.listen(process.env.PORT || 3000);
+server.listen(port);
 
 module.exports = app;
