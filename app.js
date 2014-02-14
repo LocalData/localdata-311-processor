@@ -172,9 +172,9 @@ app.run = function(done) {
 
 var server = express();
 server.get('/', function(req, res){
+  console.log("Listening on port", process.env.port || 3000);
   app.run();
 });
-server.listen(3000);
-
+server.listen(process.env.port || 3000);
 
 module.exports = app;
