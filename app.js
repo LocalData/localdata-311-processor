@@ -63,39 +63,29 @@ app.processNewResponse = function(item, done) {
     }
   };
 
-    // Stubbed for testing
-    var token = 'DONEGETTINGTOKEN';
-    item.responses.chicago_311_token = token;
+  // TODO: actually uses 311 endpoint
+  request.post(REQUEST_ENDPOINT, details, function(error, response, body) {
+    console.log("311 API response: ", error, body);
+    if(error) {
+      done(error);
+      return;
+    }
+
+    body = JSON.parse(body);
+    if (response.statusCode === 400) {
+      done(body);
+      return;
+    }
+
+    // console.log("setting token and in progress", body[0].token);
+    item.responses.chicago_311_token = body[0].token;
     item.responses.chicago_311 = IN_PROGRESS;
     item.markModified('responses');
 
     item.save(function(error, doc) {
       done(error);
     });
-
-  // TODO: actually uses 311 endpoint
-  // request.post(REQUEST_ENDPOINT, details, function(error, response, body) {
-  //   console.log("311 API response: ", error, body);
-  //   if(error) {
-  //     done(error);
-  //     return;
-  //   }
-//
-  //   body = JSON.parse(body);
-  //   if (response.statusCode === 400) {
-  //     done(body);
-  //     return;
-  //   }
-//
-  //   // console.log("setting token and in progress", body[0].token);
-  //   item.responses.chicago_311_token = body[0].token;
-  //   item.responses.chicago_311 = IN_PROGRESS;
-  //   item.markModified('responses');
-//
-  //   item.save(function(error, doc) {
-  //     done(error);
-  //   });
-  // });
+  });
 };
 
 
@@ -115,29 +105,57 @@ app.processNewResponses = function(done) {
       return;
     }
 
-    async.each(items, app.processNewResponse, function(error) {
+    async.eachLimit(items, 1, app.processNewResponse, function(error) {
       done(error);
     });
   });
 };
 
 
-/*
-  TODO IN MILESTONE 2
-  Process in-progress 311 submissions
-  Check the API to see if it has recieved a tracking ID instead of the token
-*/
-app.processInProgressResponses = function(item) {
+app.processInProgressResponse = function(item, done) {
   // look for the ID on srtracker
   // "it is nesseary to poll the GET service_request_id method until an SR id is
   //    returned"
-  // var token = item.responses.chicago_311_token;
-  // request.get(url, function(error, response, body) {
-  //   // If there is an ID, save it to the object
-  //   item.responses.chicago_311 = '1234';
-  //   delete item.responses.chicago_311_token;
-  //   item.save();
-  // });
+  // tokens/:token_id.:format
+  var token = item.responses.chicago_311_token;
+  var url = settings.chicago_endpoint + 'tokens/' + token + '.json';
+  console.log("Getting with URL", url);
+  request.get(url, function(error, response, body) {
+    if (error) {
+      return done(error);
+    }
+
+    console.log(response,body);
+    // If there is an ID, save it to the object
+    item.responses.chicago_311 = '1234';
+    delete item.responses.chicago_311_token;
+    item.save();
+  });
+};
+
+/*
+  Process in-progress 311 submissions
+  Check the API to see if it has recieved a tracking ID instead of the token
+*/
+app.processInProgressResponses = function(done) {
+  var q = {
+    survey: { $in: settings.surveys }, // TODO use x in List query
+    'responses.chicago_311': IN_PROGRESS
+  };
+
+  var query = Response.find(q);
+  query.exec(function(error, items) {
+    if (error) {
+      done(error);
+      return;
+    }
+
+    console.log("I found xxx in-progress responses:", items);
+
+    async.eachLimit(items, 1, app.processInProgressResponse, function(error) {
+      done(error);
+    });
+  });
 };
 
 app.noop = function() {
@@ -148,18 +166,7 @@ app.run = function(done) {
   mongoose.connect(settings.mongo, { safe: true });
 
   app.processNewResponses(app.noop);
-
-  // TODO in milestone 2.
-  // Now handle the in-process responses
-  // q['responses.chicago_311'] = IN_PROCESS;
-  // var processingQuery = Response.find(q);
-  // processingQuery.exec(function(error, items) {
-  //   if(error) {
-  //     app.error(error);
-  //   }
-  //
-  //   _.each(items, app.getID);
-  // });
+  app.processInProgressResponses(app.noop);
 };
 
 module.exports = app;

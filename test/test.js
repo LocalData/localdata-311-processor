@@ -166,11 +166,18 @@ suite('311 app', function () {
   });
 
   test('The app should update the response when the 311 ticket is received', function (done) {
-    // Run app
-    // Look or in-process responses
-    // Pretend they have been resolved (override the checker)
-    // Run mongoose query for responses.
-    should.exist(undefined);
-    done();
+    app.processNewResponses(function(error) {
+      should.not.exist(error);
+      app.processInProgressResponses(function(error) {
+        should.not.exist(error);
+        Response.find({}, function(error, docs) {
+
+          console.log("Found docs", docs);
+          should.not.exist(error);
+          docs.should.be.empty;
+          done();
+        });
+      });
+    });
   });
 });
