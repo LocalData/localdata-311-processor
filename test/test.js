@@ -165,15 +165,15 @@ suite('311 app', function () {
     done();
   });
 
-  test('The app should update the response when the 311 ticket is received', function (done) {
-    app.processNewResponses(function(error) {
-      should.not.exist(error);
-      console.log("Done processing new responses");
-      app.processInProgressResponses(function(error) {
-        should.not.exist(error);
-        // Further tests possible but difficult -- need to mock or spy
-        // Often tokens don't become requests fast enough for us to find out.
-      });
-    });
-  });
+  // test('The app should update the response when the 311 ticket is received', function (done) {
+  //   app.processNewResponses(function(error) {
+  //     should.not.exist(error);
+  //     console.log("Done processing new responses");
+  //     app.processInProgressResponses(function(error) {
+  //       should.not.exist(error);
+  //       // Further tests possible but difficult -- need to mock or spy
+  //       // Often tokens don't become requests fast enough for us to find out.
+  //     });
+  //   });
+  // });
 });
