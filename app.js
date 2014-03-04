@@ -38,6 +38,11 @@ http://dev.cityofchicago.org/docs/api/post_service_request
 Service IDs:
 Building violations: 4fd3bd72e750846c530000cd
 Street light out: 4ffa9f2d6018277d400000c8
+
+To check a token: tokens/:token_id.:format
+http://test311api.cityofchicago.org/open311/v2/tokens/:ID.json?api_key=123
+http://test311api.cityofchicago.org/open311/v2/tokens/5315fbf001633f526638bed4.json?api_key=
+
 */
 
 var app = {};
@@ -174,7 +179,7 @@ app.run = function(done, res) {
   }.bind(this));
 };
 
-mongoose.connect(settings.mongo, { safe: true });
+mongoose.createConnection(settings.mongo, { safe: true });
 var server = express();
 var port = Number(process.env.PORT || 3000);
 console.log("I'm using port", port);
